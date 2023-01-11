@@ -1,0 +1,121 @@
+//imports
+@import "../../styles/global/variables";
+
+.search-container {
+  margin-bottom: 5rem;
+  h2 {
+    margin-bottom: 2rem;
+    color: #252733;
+    font-size: 24px;
+    font-weight: 700;
+
+    span {
+      font-weight: 500;
+    }
+  }
+  .heading {
+    display: flex;
+    text-align: start;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .elements {
+    text-align: start !important;
+  }
+
+  .steps-container {
+    margin-bottom: 2.5rem;
+    .step {
+      &::before {
+        background-color: white;
+      }
+      &::after {
+        background-color: white;
+      }
+      &.step-primary::before {
+        background-color: $accent;
+      }
+      &.step-primary::after {
+        background-color: $accent;
+      }
+    }
+  }
+
+  .step-elements {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    gap: 1.5rem;
+    background-color: $white;
+    padding: 2rem;
+    border-radius: 10px;
+
+    .elm {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+
+      .last {
+        padding-top: 130px;
+      }
+
+      .urlList {
+        border: 1px solid $dash;
+        border-radius: 10px;
+        padding: 1rem;
+        max-height: 200px;
+        min-height: 200px;
+        overflow: auto;
+
+        a {
+          display: inline-block;
+          margin: 0 0.5rem 0.5rem;
+          background-color: $white;
+          border: 3px solid #8b8b8b35;
+          color: $accent;
+          padding: 0 10px;
+          border-radius: 10px;
+          font-weight: 500;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
+
+.single-elements {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 2rem;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.analitycs-actions {
+  background-color: $white;
+  height: fit-content;
+  padding: 2rem;
+  border-radius: 10px;
+
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    div {
+      h3 {
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+.loading {
+  .lorem {
+    display: block;
+    height: 1rem;
+  }
+}
