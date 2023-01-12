@@ -21,7 +21,7 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 const Home = () => {
-  const data = [];
+  const tableConf = { perPage: "7" };
 
   // get analytics
   const handleAnalyticsLoading = async (e) => {
@@ -38,12 +38,6 @@ const Home = () => {
     refetchOnWindowFocus: false,
     enabled: true,
   });
-
-  useEffect(() => {
-    if (analyticsData && analyticsData.code === "ok") {
-      console.log(analyticsData);
-    }
-  }, [analyticsData]);
 
   return (
     <>
@@ -100,7 +94,7 @@ const Home = () => {
           </div>
         )}
         {/* table */}
-        <Table data={data} />
+        <Table conf={tableConf} />
       </div>
     </>
   );
