@@ -1,8 +1,8 @@
 //imports
+@use "../../styles/global/breakpoints" as b;
 @import "../../styles/global/variables";
 
 .header-container {
-  width: 1280px;
   margin: 0 auto;
 
   background-color: $white;
@@ -18,7 +18,14 @@
     align-items: center;
     justify-content: space-between;
     color: $dash;
-    width: 1280px;
+    width: 900px;
+
+    @include b.breakpoint("1440") {
+      width: 1080px;
+    }
+    @include b.breakpoint("1680") {
+      width: 1280px;
+    }
   }
 
   h2 {

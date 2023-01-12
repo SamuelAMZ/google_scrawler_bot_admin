@@ -1,4 +1,5 @@
 //imports
+@use "../global/breakpoints" as b;
 @import "./variables";
 
 * {
@@ -52,7 +53,63 @@ body {
 }
 
 .centerer {
-  width: 1280px;
+  width: 900px;
   margin: 0 auto;
   margin-top: 2.5rem;
+
+  @include b.breakpoint("1440") {
+    width: 1080px;
+  }
+  @include b.breakpoint("1680") {
+    width: 1280px;
+  }
+}
+
+.notif {
+  width: 100%;
+  height: fit-content;
+  overflow: hidden;
+  // border: 3px solid black;
+  position: fixed;
+  bottom: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  // @include b.breakpoint("768") {
+  width: 300px;
+  height: fit-content;
+  right: 1rem;
+  top: 2rem;
+  // }
+}
+
+.notification-alert {
+  background-color: white;
+  color: black;
+  position: relative;
+  // z-index: 2000;
+  width: 80%;
+  margin: 0 auto;
+  padding: 0.7rem 1rem 0.7rem 1rem;
+  border-radius: 10px 10px 0 10px;
+  border-bottom: 0.3rem solid $accent;
+  box-shadow: 0 0 12px 12px rgba(20, 20, 20, 0.103);
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+
+  svg {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 15px;
+    cursor: pointer;
+  }
 }

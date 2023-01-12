@@ -21,9 +21,14 @@ import Schedules from "./pages/Schedules/Schedules";
 import Emails from "./pages/Emails/Emails";
 import Settings from "./pages/Settings/Settings";
 import Analytics from "./pages/Analitycs/Analitycs";
+import Logout from "./pages/Logout/Logout";
 
 // subpages
 import SingleSearch from "./pages/SingleSearch/SingleSearch";
+import CreateNewAccount from "./pages/Account/CreateNew/CreateNewAccount";
+
+// contexts
+import { UserProvider } from "./contexts/UserContext";
 
 const App = () => {
   // react query
@@ -38,32 +43,42 @@ const App = () => {
 
           {/* component code */}
           <div className="site-container">
-            {/* sidebar */}
-            <Sidebar />
+            <div className="notif"></div>
 
-            {/* main */}
-            <div className="main">
-              <Routes>
-                {/* auth pages */}
-                <Route path="/" exact element={<Login />} />
+            <UserProvider>
+              {/* sidebar */}
+              <Sidebar />
 
-                {/* dashboad pages */}
-                <Route path="/home" element={<Home />} />
-                <Route path="/new" element={<NewSearch />} />
-                <Route path="/searches" element={<Searches />} />
-                <Route path="/schedules" element={<Schedules />} />
-                <Route path="/emails" element={<Emails />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/account" element={<Account />} />
+              {/* main */}
+              <div className="main">
+                <Routes>
+                  {/* auth pages */}
+                  <Route path="/" exact element={<Login />} />
 
-                {/* single search page */}
-                <Route path="/search/:searchid" element={<SingleSearch />} />
+                  {/* dashboad pages */}
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/new" element={<NewSearch />} />
+                  <Route path="/searches" element={<Searches />} />
+                  <Route path="/schedules" element={<Schedules />} />
+                  <Route path="/emails" element={<Emails />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/account" element={<Account />}>
+                    <Route
+                      path="/account/new-account"
+                      element={<CreateNewAccount />}
+                    />
+                  </Route>
+                  <Route path="/logout" element={<Logout />} />
 
-                {/* 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
+                  {/* single search page */}
+                  <Route path="/search/:searchid" element={<SingleSearch />} />
+
+                  {/* 404 */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </UserProvider>
           </div>
         </>
       </QueryClientProvider>

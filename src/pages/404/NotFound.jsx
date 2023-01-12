@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,7 +12,14 @@ const NotFound = () => {
     }
   }, [location.pathname]);
 
-  return <div>404</div>;
+  return (
+    <div className="centerer notfound">
+      <h1>404</h1>
+      <Link to={"/home"}>
+        <button className="btn btn-primary">Go back to home</button>
+      </Link>
+    </div>
+  );
 };
 
 export default NotFound;

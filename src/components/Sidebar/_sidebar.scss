@@ -2,6 +2,7 @@
 @import "../../styles/global/variables";
 
 .sidebar {
+  position: relative;
   background-color: $dash;
   width: 100%;
   height: 100%;
@@ -57,4 +58,14 @@
   margin: 2rem 1.5rem;
   background-color: $second;
   opacity: 0.3;
+}
+
+.logout {
+  position: absolute;
+  bottom: 1.5rem;
+  width: 82%;
+  margin: 0 1.5rem;
+  p {
+    text-transform: capitalize !important;
+  }
 }

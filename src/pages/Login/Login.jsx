@@ -1,18 +1,63 @@
-import React, { useState } from "react";
+// built in hooks
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-// third party dependencie
-import ReCAPTCHA from "react-google-recaptcha";
+// react query
+import { useQuery } from "react-query";
+// custom  hook
+import postReq from "../../helpers/postReq";
+import notif from "../../helpers/notif";
 
 const Login = () => {
-  // captcha
-  const [captchaState, setCaptachaState] = useState(false);
-  const handleCaptcha = (e) => {
-    if (e) {
-      setCaptachaState(e);
-    } else {
-      setCaptachaState(false);
-    }
+  // login to site
+  const [formInputs, setFormInputs] = useState({
+    email: "",
+    password: "",
+  });
+
+  // useQuery from React query
+  const handlePostrequest = async () => {
+    // sending data for validation and login to backend
+    const inputData = { ...formInputs };
+
+    // post request
+    return await postReq(inputData, "/api/login");
   };
+
+  const {
+    data,
+    isLoading,
+    refetch: sendPost,
+  } = useQuery(["login"], handlePostrequest, {
+    refetchOnWindowFocus: false,
+    enabled: false,
+  });
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // check if an element from form is empty
+    if (!formInputs.email || !formInputs.password) {
+      console.log("error");
+      notif("verify inputs and captcha");
+      return;
+    }
+
+    // send req
+    sendPost();
+  };
+
+  // after check credentials
+  const navigate = useNavigate();
+  useEffect(() => {
+    // redirect to 2fa hash page
+    if (data && data.code === "ok") {
+      navigate(`/home`);
+    }
+    if (data && data.code === "bad") {
+      notif(data.message);
+    }
+  }, [data]);
 
   return (
     <div className="login-f">
@@ -26,7 +71,7 @@ const Login = () => {
         </div>
 
         {/* form */}
-        <form>
+        <form onSubmit={handleLogin}>
           <label htmlFor="email">Email</label>
           <div className="inputs">
             <input
@@ -34,6 +79,13 @@ const Login = () => {
               type="text"
               placeholder="Email"
               className="input input-bordered input-primary w-full"
+              value={formInputs.email}
+              onChange={(e) =>
+                setFormInputs({
+                  email: e.target.value,
+                  password: formInputs.password,
+                })
+              }
             />
             <label htmlFor="password">Password</label>
             <input
@@ -41,17 +93,20 @@ const Login = () => {
               type="password"
               placeholder="Password"
               className="input input-bordered input-primary w-full"
+              value={formInputs.password}
+              onChange={(e) =>
+                setFormInputs({
+                  email: formInputs.email,
+                  password: e.target.value,
+                })
+              }
             />
           </div>
 
-          {/* recaptcha */}
-          <ReCAPTCHA
-            //   className="thecaptcha"
-            sitekey="6Le02eYjAAAAAD49XpN_CUXtsr-FOeXkavLRwIyg"
-            onChange={handleCaptcha}
-          />
-
-          <button className="btn btn-primary">Login</button>
+          {isLoading && (
+            <button className="btn btn-primary loading">loading...</button>
+          )}
+          {!isLoading && <button className="btn btn-primary">Login</button>}
         </form>
       </div>
     </div>

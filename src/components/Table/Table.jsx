@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 // icons
 import {
@@ -21,13 +22,19 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 const Table = ({ conf }) => {
-  const [pageNumber, setPageNumber] = useState("1");
+  const [pageNumber, setPageNumber] = useState("0");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const location = useLocation();
 
   // get table data
   const handleTableData = async () => {
     // send req
     return await postReq(
-      { page: pageNumber, perPage: conf.perPage },
+      {
+        page: pageNumber,
+        perPage: conf.perPage,
+        searchKeyword,
+      },
       "/api/pagination"
     );
   };
@@ -37,15 +44,22 @@ const Table = ({ conf }) => {
     isLoading: tableLoading,
     status,
     refetch: getPaginate,
-  } = useQuery(["table", pageNumber], handleTableData, {
-    refetchOnWindowFocus: false,
-    enabled: true,
-  });
+  } = useQuery(
+    [location.pathname, pageNumber, searchKeyword],
+    handleTableData,
+    {
+      refetchOnWindowFocus: false,
+      enabled: true,
+    }
+  );
 
   //  handle next and prev
   const handleNext = () => {
     // check if page available
-    if (Number(pageNumber) === Number(conf.perPage) - 1) {
+    if (
+      Number(pageNumber) + 1 ===
+      Math.ceil(tableData.payload.totalItemsLength / Number(conf.perPage))
+    ) {
       // notif page end
       return;
     }
@@ -56,13 +70,25 @@ const Table = ({ conf }) => {
 
   const handlePrev = () => {
     // check if page available
-    if (Number(pageNumber) === 1) {
+    if (Number(pageNumber) === 0) {
       // notif page end
       return;
     }
 
     // move page to next
     setPageNumber(String(Number(pageNumber) - 1));
+  };
+
+  // handle search
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    if (!searchKeyword) {
+      return;
+    }
+
+    setPageNumber("0");
+    getPaginate();
   };
 
   return (
@@ -73,17 +99,26 @@ const Table = ({ conf }) => {
           <button className="btn changed">
             <IoFilter /> <p>Actions</p>
           </button>
-          <button className="btn btn-primary">
-            <BsPlusLg /> <p>New Search</p>
-          </button>
-          {/* <p>0 elment selected</p> */}
+          <a href="/new">
+            <button className="btn btn-primary">
+              <BsPlusLg /> <p>New Search</p>
+            </button>
+          </a>
+          {tableData && tableData.code === "ok" && (
+            <p>{tableData.payload.totalItemsLength} items</p>
+          )}
         </div>
         <div className="search">
-          <form>
+          <form onSubmit={handleSearch}>
             <input
               type="text"
               placeholder="Search in table"
               className="input input-bordered w-full"
+              value={searchKeyword}
+              onChange={(e) => {
+                setPageNumber("0");
+                setSearchKeyword(e.target.value);
+              }}
             />
             <button className="btn btn-primary">
               <FiSearch />
@@ -110,9 +145,9 @@ const Table = ({ conf }) => {
         <tbody>
           {/* loading */}
           {tableLoading &&
-            new Array(Number(conf.perPage)).fill("").map((elm) => {
+            new Array(Number(conf.perPage)).fill("").map((elm, idx) => {
               return (
-                <tr>
+                <tr key={idx}>
                   <SkeletonTheme baseColor="#8b8b8b35" highlightColor="#f9fafb">
                     <td>
                       <Skeleton count={1} />
@@ -142,22 +177,27 @@ const Table = ({ conf }) => {
             tableData.code === "ok" &&
             tableData.payload.list.map((elm, idx) => {
               return (
-                <tr>
+                <tr key={idx}>
                   <td>
                     <input
                       type="checkbox"
                       className="checkbox checkbox-primary"
                     />
                   </td>
-                  <td>{elm.keyword}</td>
+                  <td>
+                    <Link to={`/search/${elm._id}`}>
+                      {elm.keyword.substr(0, 20)}
+                      {elm.keyword.length >= 20 && "..."}
+                    </Link>
+                  </td>
                   <td>{elm.status}</td>
                   <td>{elm.allResults.length}</td>
                   <td>{elm.createdAt.split("T")[0]}</td>
                   <td>
                     <div className="actions">
-                      <AiOutlineDelete />
-                      <AiOutlineEdit />
-                      <AiOutlineArrowDown />
+                      <Link to={`/search/${elm._id}`}>
+                        <AiOutlineEdit />
+                      </Link>
                     </div>
                   </td>
                 </tr>
@@ -174,11 +214,12 @@ const Table = ({ conf }) => {
               Previous
             </button>
             <p>
-              Page {pageNumber} of{" "}
-              {Math.floor(
+              Page {Number(pageNumber) + 1} of{" "}
+              {Math.ceil(
                 tableData.payload.totalItemsLength / Number(conf.perPage)
               )}
             </p>
+
             <button className="btn" onClick={handleNext}>
               Next
             </button>

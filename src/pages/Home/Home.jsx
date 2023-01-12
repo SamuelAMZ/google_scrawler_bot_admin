@@ -1,8 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useContext } from "react";
 
 // components
 import Header from "../../components/Header/Header";
 import Table from "../../components/Table/Table";
+import Auth from "../../components/Auth/Auth";
+
+// contexts
+import UserContext from "../../contexts/UserContext";
 
 // icons
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
@@ -22,6 +26,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 const Home = () => {
   const tableConf = { perPage: "7" };
+  const { login, changeLogin } = useContext(UserContext);
 
   // get analytics
   const handleAnalyticsLoading = async (e) => {
@@ -41,6 +46,7 @@ const Home = () => {
 
   return (
     <>
+      <Auth />
       <Header page={"Home"} />
       {/* home */}
       <div className="centerer home-container">

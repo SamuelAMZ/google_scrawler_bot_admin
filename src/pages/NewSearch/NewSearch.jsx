@@ -61,7 +61,7 @@ const NewSearch = () => {
     }
   };
 
-  const handleSubmitions = async (e) => {
+  const handleSubmitions = async () => {
     const inputData = {
       keyword: searchData.keyword,
       numberOfPages: searchData.numberOfPages,
@@ -109,7 +109,7 @@ const NewSearch = () => {
       <div className="centerer newsearch-container">
         <div className="newsearch-elements">
           {/* back */}
-          <button className="btn btn-link">
+          <button className="btn btn-link" onClick={() => navigate(-1)}>
             <IoIosArrowBack /> Back
           </button>
           {/* form */}

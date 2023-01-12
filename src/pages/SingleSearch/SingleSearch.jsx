@@ -146,7 +146,7 @@ const SingleSearch = () => {
                   <div className="urlList">
                     {pageData.payload.allResults.map((elm, idx) => {
                       return (
-                        <a key={idx} href={elm.link}>
+                        <a key={idx} href={elm.link} target="_blank">
                           {elm.link}
                         </a>
                       );
@@ -178,7 +178,7 @@ const SingleSearch = () => {
                     ) : (
                       pageData.payload.filtered.map((elm, idx) => {
                         return (
-                          <a key={idx} href={elm}>
+                          <a key={idx} href={elm} target="_blank">
                             {elm}
                           </a>
                         );
