@@ -59,11 +59,12 @@
       }
 
       .urlList {
-        border: 1px solid $dash;
+        // border: 1px solid $dash;
+        border: 3px solid #8b8b8b35;
         border-radius: 10px;
         padding: 1rem;
-        max-height: 200px;
-        min-height: 200px;
+        max-height: 400px;
+        min-height: 400px;
         overflow: auto;
         overflow-x: hidden;
 
@@ -78,6 +79,29 @@
           font-weight: 500;
           font-size: 15px;
           word-break: break-all;
+        }
+      }
+
+      progress {
+        margin: 0.5rem 0 !important;
+      }
+      .progress-status {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .steps-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        button {
+          background-color: $white;
+          border: 3px solid #8b8b8b35;
+          color: $dash;
+          text-transform: capitalize;
         }
       }
     }
@@ -119,5 +143,64 @@
   .lorem {
     display: block;
     height: 1rem;
+  }
+}
+
+.step3-details {
+  background-color: $white;
+  border: 3px solid #8b8b8b35;
+  padding: 0 10px;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+
+  .collapse-title {
+    padding: 0.5rem;
+  }
+
+  .collapse-title,
+  :where(.collapse > input[type="checkbox"]) {
+    min-height: 1.5rem !important;
+  }
+
+  p {
+    font-size: 15px !important;
+    word-break: break-all;
+    font-weight: 500;
+    color: $accent;
+  }
+}
+
+.step3-data {
+  .step3-divs {
+    margin-top: 1rem;
+    padding: 0 1rem;
+    border-radius: 15px;
+
+    &:hover {
+      background-color: #7f76fc13;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    p {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 15px;
+      color: #252733;
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      li {
+        list-style: square;
+      }
+    }
   }
 }

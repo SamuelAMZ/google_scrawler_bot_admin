@@ -17,6 +17,10 @@ import "react-loading-skeleton/dist/skeleton.css";
 const SingleSearch = () => {
   const params = useParams();
   const [pageData, setPageData] = useState(null);
+  const [step2Loading, setStep2Loading] = useState(false);
+  const [startStep3, setStartStep3] = useState(false);
+  const [step3Loading, setStep3Loading] = useState(false);
+  const [progress, setProgress] = useState({ total: 0, done: 0 });
 
   // req
   const handlePageLoading = async () => {
@@ -38,6 +42,12 @@ const SingleSearch = () => {
   useEffect(() => {
     if (searchData && searchData.code === "ok") {
       setPageData(searchData);
+
+      // progress
+      setProgress({
+        total: searchData.payload.linksStats.allLinksCount,
+        done: searchData.payload.linksStats.visitedCount,
+      });
     }
   }, [searchData]);
 
@@ -67,29 +77,168 @@ const SingleSearch = () => {
   };
 
   // ////// filtering result  STEP2
-  // req
-  const handleFIltering = async () => {
-    // send req
-    return await postReq({ id: params.searchid }, "/api/filterResult");
+  const step2req = async () => {
+    const reqData = { id: params.searchid };
+
+    // loading step2
+    setStep2Loading(true);
+
+    // sending request
+    try {
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+      headers.append("GET", "POST", "OPTIONS");
+      headers.append(
+        "Access-Control-Allow-Origin",
+        `${process.env.REACT_APP_DOMAIN}`
+      );
+      headers.append("Access-Control-Allow-Credentials", "true");
+
+      const response = await fetch(
+        `${process.env.REACT_APP_DOMAIN}/api/filterResult`,
+        {
+          mode: "cors",
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(reqData),
+          credentials: "include",
+        }
+      );
+
+      const serverMessage = await response.json();
+
+      // loading step2
+      setStep2Loading(false);
+
+      if (serverMessage.code === "500") {
+        console.log(serverMessage.message);
+      }
+
+      // set data
+      if (serverMessage.code === "ok") {
+        setPageData(serverMessage);
+      }
+    } catch (err) {
+      console.log(err);
+      setStep2Loading(false);
+    }
   };
 
-  const {
-    data: filterData,
-    isLoading: filterLoading,
-    isError: filterError,
-  } = useQuery(["filter"], handleFIltering, {
-    refetchOnWindowFocus: false,
-    enabled: true,
-  });
+  // control when send the req
+  useEffect(() => {
+    if (pageData && pageData.payload.status === "step 2") {
+      step2req();
+    } else {
+      console.log("already filtered");
+    }
+  }, [pageData]);
+
+  // //////// sending step 3 request
+  const step3req = async () => {
+    const reqData = { id: params.searchid };
+
+    // loading step2
+    setStep2Loading(true);
+
+    // sending request
+    try {
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+      headers.append("GET", "POST", "OPTIONS");
+      headers.append(
+        "Access-Control-Allow-Origin",
+        `${process.env.REACT_APP_DOMAIN}`
+      );
+      headers.append("Access-Control-Allow-Credentials", "true");
+
+      const response = await fetch(
+        `${process.env.REACT_APP_DOMAIN}/api/visit-each-link`,
+        {
+          mode: "cors",
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(reqData),
+          credentials: "include",
+        }
+      );
+
+      const serverMessage = await response.json();
+
+      // loading step2
+      setStep3Loading(false);
+
+      if (serverMessage.code === "500") {
+        console.log(serverMessage.message);
+      }
+
+      // set data
+      if (serverMessage.code === "ok") {
+        setPageData(serverMessage);
+      }
+    } catch (err) {
+      console.log(err);
+      setStep3Loading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (startStep3) {
+      step3req();
+      // reset starter
+      setStartStep3(false);
+    }
+  }, [startStep3]);
+
+  // //////// request to sed each 10sec to update progress of step 3
+  const { data: latestData, refetch: updateProgress } = useQuery(
+    ["latest", progress],
+    handlePageLoading,
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
+
+  useEffect(() => {
+    if (startStep3) {
+      // set interval
+      let intervalId = setInterval(() => {
+        updateProgress();
+      }, [10000]);
+    }
+  }, [startStep3]);
 
   // setting data
   useEffect(() => {
-    if (filterData && filterData.code === "ok") {
-      console.log(filterData);
-      // update data
-      setPageData(filterData);
+    if (latestData && latestData.code === "ok") {
+      setPageData(latestData);
+
+      // progress
+      setProgress({
+        total: latestData.payload.linksStats.allLinksCount,
+        done: latestData.payload.linksStats.visitedCount,
+      });
     }
-  }, [filterData]);
+  }, [latestData]);
+
+  // clear interval
+  useEffect(() => {
+    if (pageData && pageData.payload.status === "done") {
+      console.log("cleared");
+      let highestTimeoutId = setTimeout(";");
+      for (var i = 0; i < highestTimeoutId; i++) {
+        clearTimeout(i);
+      }
+
+      // set progress a last time
+      setProgress({
+        total: pageData.payload.linksStats.allLinksCount,
+        done: pageData.payload.linksStats.visitedCount,
+      });
+    }
+  }, [pageData]);
 
   return (
     <>
@@ -152,6 +301,10 @@ const SingleSearch = () => {
                       );
                     })}
                   </div>
+                  {/* actions */}
+                  <div className="steps-actions">
+                    <button className="btn ">More details</button>
+                  </div>
                 </div>
               </div>
               {/* step2 */}
@@ -185,6 +338,11 @@ const SingleSearch = () => {
                       })
                     )}
                   </div>
+
+                  {/* actions */}
+                  <div className="steps-actions">
+                    <button className="btn ">More details</button>
+                  </div>
                 </div>
               </div>
               {/* step 3 */}
@@ -192,23 +350,133 @@ const SingleSearch = () => {
                 <div className="elm">
                   <p>Step Name</p>
                   <p>Status</p>
-                  <p>URLs where the keyword only has been found</p>
-                  <p className="last">
-                    URLs where the keyword and the video content were found
-                  </p>
+                  <p>Progress</p>
+                  <p>URLs results</p>
                 </div>
                 <div className="elm">
-                  <p>Visit Filtered URLs</p>
+                  <p>Visit Filtered URLs One By One</p>
                   <p>{pageData.payload.steps.step3}</p>
+                  <div className="progress-status">
+                    <progress
+                      className="progress progress-primary w-56"
+                      value={progress.done}
+                      max={progress.total}
+                    ></progress>
+                    <p>
+                      {progress.done}/{progress.total} URLs visited
+                    </p>
+                  </div>
+
                   <div className="urlList">
-                    {pageData.payload.keywordOnly.length === 0 && (
+                    {pageData.payload.visitResults.length === 0 && (
                       <Skeleton count={6} />
+                    )}
+                    {pageData.payload.visitResults.length > 0 && (
+                      <>
+                        {pageData.payload.visitResults.map((resElm, idx) => {
+                          return (
+                            <div
+                              key={idx}
+                              tabIndex={0}
+                              className="collapse collapse-arrow step3-details"
+                            >
+                              <input type="checkbox" />
+                              <div className="collapse-title">
+                                <p>
+                                  {resElm.link.substr(0, 50)}
+                                  {resElm.link.length > 50 ? "..." : ""}{" "}
+                                </p>
+                              </div>
+                              <div className="collapse-content">
+                                <div className="step3-data">
+                                  {/* keyword */}
+                                  <div className="step3-divs">
+                                    <h3>Keyword combination tested</h3>
+                                    {/* keywordCombinations */}
+                                    <ul>
+                                      {resElm.keywordCombinations.map(
+                                        (combs, combsIdx) => {
+                                          return (
+                                            <li key={combsIdx}>
+                                              <p>{combs}</p>
+                                            </li>
+                                          );
+                                        }
+                                      )}
+                                    </ul>
+                                  </div>
+                                  {/* keyword found data */}
+                                  <div className="step3-divs">
+                                    <h3>Keyword search report</h3>
+                                    <ul>
+                                      <li>
+                                        <p>
+                                          Keyword found on page?{" "}
+                                          {resElm.keywordData.isMatch
+                                            ? "YES"
+                                            : "NO"}
+                                        </p>
+                                      </li>
+                                      <li>
+                                        <p>
+                                          Keyword found{" "}
+                                          {resElm.keywordData.resultCount}{" "}
+                                          time(s) on page
+                                        </p>
+                                      </li>
+                                    </ul>
+                                  </div>
+
+                                  {/* video found data */}
+                                  <div className="step3-divs">
+                                    <h3>Video search report</h3>
+                                    <ul>
+                                      <li>
+                                        <p>
+                                          Video found on page?{" "}
+                                          {resElm.videoData.isVideo
+                                            ? "YES"
+                                            : "NO"}
+                                        </p>
+                                      </li>
+                                      <li>
+                                        <p>
+                                          Video found {resElm.videoData.count}{" "}
+                                          time(s) on page
+                                        </p>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
                     )}
                   </div>
-                  <div className="urlList ">
-                    {pageData.payload.keywordAndMedia.length === 0 && (
-                      <Skeleton count={6} />
+                  {/* actions */}
+                  <div className="steps-actions">
+                    {pageData && pageData.payload.status !== "done" && (
+                      <button
+                        className={
+                          (pageData &&
+                            pageData.payload.steps.step3 === "scraping...") ||
+                          startStep3
+                            ? "btn btn-primary loading"
+                            : "btn btn-primary"
+                        }
+                        onClick={() => setStartStep3(true)}
+                      >
+                        {(pageData &&
+                          pageData.payload.steps.step3 === "scraping...") ||
+                        startStep3
+                          ? "Scraping..."
+                          : "Start Visiting"}
+                      </button>
                     )}
+
+                    <button className="btn ">More details</button>
                   </div>
                 </div>
               </div>
