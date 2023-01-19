@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // components
 import Header from "../../components/Header/Header";
@@ -22,6 +22,7 @@ const NewSearch = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChanges = (e, type) => {
     if (type === "keyword") {
@@ -100,6 +101,35 @@ const NewSearch = () => {
       navigate(`/search/${data.data.searchId}`);
     }
   }, [data]);
+
+  // //// grab detaails from url
+  useEffect(() => {
+    const urlData = location.search.replace("?", "").split("&");
+    console.log(urlData);
+    const dataFromUrl = {
+      keyword: "",
+      numberOfPages: "20",
+      urls: "",
+      domains: "",
+    };
+    urlData.forEach((elm) => {
+      const temp = elm.split("=");
+      if (temp[0] === "keyword") {
+        dataFromUrl.keyword = decodeURI(temp[1]);
+      }
+      if (temp[0] === "num") {
+        dataFromUrl.numberOfPages = temp[1];
+      }
+      if (temp[0] === "urls") {
+        dataFromUrl.urls = temp[1];
+      }
+      if (temp[0] === "doms") {
+        dataFromUrl.domains = temp[1];
+      }
+    });
+    // setting data
+    setSearchData(dataFromUrl);
+  }, []);
 
   return (
     <>

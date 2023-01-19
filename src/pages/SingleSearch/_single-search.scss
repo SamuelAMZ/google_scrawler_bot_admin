@@ -204,3 +204,22 @@
     }
   }
 }
+
+// select csv rows
+.check-rows {
+  margin: 2rem 0 0 0;
+  .inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+
+    div {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+  }
+  button {
+    margin: 1.5rem 0 0.5rem 0;
+  }
+}

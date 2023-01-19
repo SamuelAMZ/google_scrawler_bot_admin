@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 // componenets
 import Header from "../../components/Header/Header";
@@ -14,13 +14,29 @@ import { useQuery } from "react-query";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
+// import notify
+import notif from "../../helpers/notif";
+
+// csv
+import { CSVLink, CSVDownload } from "react-csv";
+
 const SingleSearch = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const [pageData, setPageData] = useState(null);
   const [step2Loading, setStep2Loading] = useState(false);
   const [startStep3, setStartStep3] = useState(false);
   const [step3Loading, setStep3Loading] = useState(false);
   const [progress, setProgress] = useState({ total: 0, done: 0 });
+  // csv state
+  const [csvRows, setCsvRows] = useState({
+    keyword: true,
+    urls: true,
+    keywordReport: true,
+    videoReport: true,
+    date: true,
+  });
+  const [csvReady, setCsvReady] = useState(false);
 
   // req
   const handlePageLoading = async () => {
@@ -239,6 +255,200 @@ const SingleSearch = () => {
       });
     }
   }, [pageData]);
+
+  // //// remove single search
+  const handleRemovingSearch = async () => {
+    // send req
+    return await postReq({ id: params.searchid }, "/api/remove-single-earch");
+  };
+
+  const {
+    data: removeConfirmationData,
+    isLoading: loadingRemove,
+    isError: errorRemove,
+    refetch: sendRemove,
+  } = useQuery([`${params.searchid}remove`], handleRemovingSearch, {
+    refetchOnWindowFocus: false,
+    enabled: false,
+  });
+
+  const removeSingleSearch = async () => {
+    sendRemove();
+  };
+
+  // give comfirmation once remove done pr error message
+  useEffect(() => {
+    if (removeConfirmationData && removeConfirmationData.code === "ok") {
+      notif("search removed");
+
+      // redirect to home
+      navigate("/home");
+    }
+    if (removeConfirmationData && removeConfirmationData.code === "bad") {
+      notif("error removing search, try again later");
+    }
+  }, [removeConfirmationData]);
+
+  // ///// relaunch
+  const relauchSearch = () => {
+    if (!pageData) {
+      return notif("something wrong, reload the page");
+    }
+    const relunchSearchName = pageData.payload.keyword
+      ? pageData.payload.keyword
+      : "";
+    const relaunchNumberOfPage = pageData.payload.numberOfPagesToVisitOnGoogle
+      ? pageData.payload.numberOfPagesToVisitOnGoogle
+      : "";
+    const relauchUrlsToSkip = pageData.payload.exactLinks
+      ? pageData.payload.exactLinks
+      : "";
+    const relauchDomainToSkip = pageData.payload.domainsLinks
+      ? pageData.payload.domainsLinks
+      : "";
+
+    // redirect to new search form
+    window.location = `/new?keyword=${relunchSearchName}&num=${relaunchNumberOfPage}&urls=${relauchUrlsToSkip}&doms=${relauchDomainToSkip}`;
+  };
+
+  // //// download csv
+  const handleRowsChecked = (e, type) => {
+    if (type === "keyword") {
+      setCsvRows({
+        keyword: e.target.checked,
+        urls: csvRows.urls,
+        keywordReport: csvRows.keywordReport,
+        videoReport: csvRows.videoReport,
+        date: csvRows.date,
+      });
+    }
+    if (type === "urls") {
+      setCsvRows({
+        keyword: csvRows.keyword,
+        urls: e.target.checked,
+        keywordReport: csvRows.keywordReport,
+        videoReport: csvRows.videoReport,
+        date: csvRows.date,
+      });
+    }
+    if (type === "keywordReport") {
+      setCsvRows({
+        keyword: csvRows.keyword,
+        urls: csvRows.urls,
+        keywordReport: e.target.checked,
+        videoReport: csvRows.videoReport,
+        date: csvRows.date,
+      });
+    }
+    if (type === "videoReport") {
+      setCsvRows({
+        keyword: csvRows.keyword,
+        urls: csvRows.urls,
+        keywordReport: csvRows.keywordReport,
+        videoReport: e.target.checked,
+        date: csvRows.date,
+      });
+    }
+    if (type === "date") {
+      setCsvRows({
+        keyword: csvRows.keyword,
+        urls: csvRows.urls,
+        keywordReport: csvRows.keywordReport,
+        videoReport: csvRows.videoReport,
+        date: e.target.checked,
+      });
+    }
+  };
+
+  const handleReqDownload = async () => {
+    // send req
+    return await postReq(
+      {
+        id: params.searchid,
+        keyword: csvRows.keyword,
+        urls: csvRows.urls,
+        keywordReport: csvRows.keywordReport,
+        videoReport: csvRows.videoReport,
+        date: csvRows.date,
+      },
+      "/api/download-csv"
+    );
+  };
+
+  const {
+    data: downloadCsvData,
+    isLoading: loadingCsv,
+    isError: errorcsv,
+    refetch: sendcsv,
+  } = useQuery([`${params.searchid}csv`], handleReqDownload, {
+    refetchOnWindowFocus: false,
+    enabled: false,
+  });
+
+  const handleDownloadCSV = async (e) => {
+    e.preventDefault();
+
+    sendcsv();
+  };
+
+  const createCsv = (csvToCreate) => {
+    console.log(csvToCreate);
+
+    const headers = [
+      csvToCreate.keyword && "KEYWORD",
+      csvToCreate.urls && "URLS VISITED",
+      csvToCreate.keywordReport && "KEYWORD FOUND",
+      csvToCreate.videoReport && "VIDEO FOUND",
+      csvToCreate.date && "SEARCH DATE",
+    ];
+    const csvBody = [];
+
+    // populate scvBody
+    csvToCreate.urls.forEach((elm, idx) => {
+      if (idx === 0) {
+        csvBody.push([
+          csvToCreate.keyword,
+          csvToCreate.urls[0],
+          csvToCreate.keywordReport &&
+            (csvToCreate.keywordReport[0] ? "YES" : "NO"),
+          csvToCreate.videoReport &&
+            (csvToCreate.videoReport[0] ? "YES" : "NO"),
+          csvToCreate.date && csvToCreate.date.split("T")[0],
+        ]);
+      } else {
+        csvBody.push([
+          "",
+          csvToCreate.urls[idx],
+          csvToCreate.keywordReport &&
+            (csvToCreate.keywordReport[idx] ? "YES" : "NO"),
+          csvToCreate.videoReport &&
+            (csvToCreate.videoReport[idx] ? "YES" : "NO"),
+          csvToCreate.date && "",
+        ]);
+      }
+    });
+
+    const csvData = [headers, ...csvBody];
+
+    // download
+    setCsvReady(csvData);
+  };
+
+  // create csv file base on the response
+  useEffect(() => {
+    if (downloadCsvData && downloadCsvData.code === "ok") {
+      // reset download btn
+      setCsvReady(false);
+
+      // will create and download csv
+      createCsv(downloadCsvData.payload);
+
+      notif("CSV downloaded succesfully");
+    }
+    if (downloadCsvData && downloadCsvData.code === "bad") {
+      notif("error, try later");
+    }
+  }, [downloadCsvData]);
 
   return (
     <>
@@ -507,15 +717,140 @@ const SingleSearch = () => {
 
                 {/* actions */}
                 <div>
-                  <button className="btn w-full">Delete This Search</button>
+                  {loadingRemove ? (
+                    <button className="btn w-full loading">Detecting...</button>
+                  ) : (
+                    <button className="btn w-full" onClick={removeSingleSearch}>
+                      Delete This Search
+                    </button>
+                  )}
                 </div>
                 <div>
-                  <button className="btn w-full">Re-Launch</button>
-                </div>
-                <div>
-                  <button className="btn btn-primary w-full">
-                    Download CSV
+                  <button className="btn w-full" onClick={relauchSearch}>
+                    Re-Launch
                   </button>
+                </div>
+                <div>
+                  <label
+                    htmlFor="choose-csv-rows"
+                    className="btn btn-primary w-full"
+                  >
+                    Download CSV
+                  </label>
+                </div>
+
+                {/* download csv choose rows modal */}
+                <input
+                  type="checkbox"
+                  id="choose-csv-rows"
+                  className="modal-toggle"
+                />
+                <div className="modal modal-bottom sm:modal-middle">
+                  <div className="modal-box relative">
+                    <label
+                      htmlFor="choose-csv-rows"
+                      className="btn btn-sm btn-circle absolute right-2 top-2"
+                    >
+                      ✕
+                    </label>
+                    <h3 className="text-lg font-bold">
+                      Choose the rows that you want in the CSV
+                    </h3>
+                    <div className="check-rows">
+                      <form onSubmit={handleDownloadCSV}>
+                        <div className="inputs">
+                          <div>
+                            <input
+                              type="checkbox"
+                              id="csv-keyword"
+                              className="checkbox"
+                              disabled
+                              checked={csvRows.keyword}
+                              onChange={(e) => handleRowsChecked(e, "keyword")}
+                            />
+                            <label htmlFor="csv-keyword">Keyword</label>
+                          </div>
+                          <div>
+                            <input
+                              type="checkbox"
+                              id="csv-url"
+                              className="checkbox"
+                              disabled
+                              checked={csvRows.urls}
+                              onChange={(e) => handleRowsChecked(e, "urls")}
+                            />
+                            <label htmlFor="csv-url">URLs visited</label>
+                          </div>
+                          <div>
+                            <input
+                              type="checkbox"
+                              id="csv-keyword-report"
+                              className="checkbox"
+                              checked={csvRows.keywordReport}
+                              onChange={(e) =>
+                                handleRowsChecked(e, "keywordReport")
+                              }
+                            />
+                            <label htmlFor="csv-keyword-report">
+                              URLs keyword report
+                            </label>
+                          </div>
+                          <div>
+                            <input
+                              type="checkbox"
+                              id="csv-video-report"
+                              className="checkbox"
+                              checked={csvRows.videoReport}
+                              onChange={(e) =>
+                                handleRowsChecked(e, "videoReport")
+                              }
+                            />
+                            <label htmlFor="csv-video-report">
+                              URLs video report
+                            </label>
+                          </div>
+                          <div>
+                            <input
+                              type="checkbox"
+                              id="csv-date"
+                              className="checkbox"
+                              checked={csvRows.date}
+                              onChange={(e) => handleRowsChecked(e, "date")}
+                            />
+                            <label htmlFor="csv-date">Search date</label>
+                          </div>
+                        </div>
+
+                        {/* download btn */}
+                        {loadingCsv ? (
+                          <button
+                            className="btn btn-primary w-full loading"
+                            onClick={handleDownloadCSV}
+                          >
+                            Loading...
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-primary w-full"
+                            onClick={handleDownloadCSV}
+                          >
+                            Download
+                          </button>
+                        )}
+
+                        {/* csv link */}
+                        {csvReady ? (
+                          <CSVDownload
+                            data={csvReady}
+                            filename={"takedownly.csv"}
+                            target="_blank"
+                          />
+                        ) : (
+                          false
+                        )}
+                      </form>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
