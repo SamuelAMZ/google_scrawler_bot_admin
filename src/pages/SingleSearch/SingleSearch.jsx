@@ -37,6 +37,8 @@ const SingleSearch = () => {
     date: true,
   });
   const [csvReady, setCsvReady] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [csvData, setCsvData] = useState(null);
 
   // req
   const handlePageLoading = async () => {
@@ -360,36 +362,65 @@ const SingleSearch = () => {
     }
   };
 
-  const handleReqDownload = async () => {
-    // send req
-    return await postReq(
-      {
-        id: params.searchid,
-        keyword: csvRows.keyword,
-        urls: csvRows.urls,
-        keywordReport: csvRows.keywordReport,
-        videoReport: csvRows.videoReport,
-        date: csvRows.date,
-      },
-      "/api/download-csv"
-    );
-  };
-
-  const {
-    data: downloadCsvData,
-    isLoading: loadingCsv,
-    isError: errorcsv,
-    isSuccess: lpm,
-    refetch: sendcsv,
-  } = useQuery([`${params.searchid}csv`], handleReqDownload, {
-    refetchOnWindowFocus: false,
-    enabled: false,
-  });
-
   const handleDownloadCSV = async (e) => {
     e.preventDefault();
 
-    sendcsv();
+    // set download action to false
+    setCsvReady(false);
+
+    const reqData = {
+      id: params.searchid,
+      keyword: csvRows.keyword,
+      urls: csvRows.urls,
+      keywordReport: csvRows.keywordReport,
+      videoReport: csvRows.videoReport,
+      date: csvRows.date,
+    };
+
+    // loading download
+    setDownloadLoading(true);
+
+    // sending request
+    try {
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+      headers.append("GET", "POST", "OPTIONS");
+      headers.append(
+        "Access-Control-Allow-Origin",
+        `${process.env.REACT_APP_DOMAIN}`
+      );
+      headers.append("Access-Control-Allow-Credentials", "true");
+
+      const response = await fetch(
+        `${process.env.REACT_APP_DOMAIN}/api/download-csv`,
+        {
+          mode: "cors",
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(reqData),
+          credentials: "include",
+        }
+      );
+
+      const serverMessage = await response.json();
+
+      // loading step2
+      setDownloadLoading(false);
+
+      if (serverMessage.code === "500") {
+        console.log(serverMessage.message);
+      }
+
+      // set data
+      if (serverMessage.code === "ok") {
+        // create csv
+        createCsv(serverMessage.payload);
+      }
+    } catch (err) {
+      console.log(err);
+      setDownloadLoading(false);
+    }
   };
 
   const createCsv = (csvToCreate) => {
@@ -429,25 +460,29 @@ const SingleSearch = () => {
 
     const csvData = [headers, ...csvBody];
 
-    // download
-    setCsvReady(csvData);
-
-    // reset download btn
-    // setCsvReady(false);
+    // set csv data
+    setCsvData(csvData);
   };
 
-  // create csv file base on the response
   useEffect(() => {
-    if (downloadCsvData && downloadCsvData.code === "ok" && lpm) {
-      // will create and download csv
-      createCsv(downloadCsvData.payload);
+    if (csvData) {
+      // download csv
+      setCsvReady(csvData);
+    }
+  }, [csvData]);
 
-      notif("CSV downloaded succesfully");
-    }
-    if (downloadCsvData && downloadCsvData.code === "bad") {
-      notif("error, try later");
-    }
-  }, [downloadCsvData]);
+  // // create csv file base on the response
+  // useEffect(() => {
+  //   if (downloadCsvData && downloadCsvData.code === "ok") {
+  //     // will create and download csv
+  //     createCsv(downloadCsvData.payload);
+
+  //     notif("CSV downloaded succesfully");
+  //   }
+  //   if (downloadCsvData && downloadCsvData.code === "bad") {
+  //     notif("error, try later");
+  //   }
+  // }, [downloadCsvData]);
 
   return (
     <>
@@ -827,7 +862,7 @@ const SingleSearch = () => {
                         </div>
 
                         {/* download btn */}
-                        {loadingCsv ? (
+                        {downloadLoading ? (
                           <button
                             className="btn btn-primary w-full loading"
                             onClick={handleDownloadCSV}
@@ -842,18 +877,19 @@ const SingleSearch = () => {
                             Download
                           </button>
                         )}
-
-                        {/* csv link */}
-                        {csvReady ? (
-                          <CSVDownload
-                            data={csvReady}
-                            filename={"takedownly.csv"}
-                            target="_blank"
-                          />
-                        ) : (
-                          false
-                        )}
                       </form>
+
+                      {/* download csv */}
+                      {/* csv link */}
+                      {csvReady ? (
+                        <CSVDownload
+                          data={csvReady}
+                          filename={"takedownly.csv"}
+                          target="_blank"
+                        />
+                      ) : (
+                        false
+                      )}
                     </div>
                   </div>
                 </div>
