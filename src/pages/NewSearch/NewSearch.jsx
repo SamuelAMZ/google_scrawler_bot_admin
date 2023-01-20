@@ -17,6 +17,7 @@ const NewSearch = () => {
   const [searchData, setSearchData] = useState({
     keyword: "",
     numberOfPages: "20",
+    tabs: "all",
     urls: "",
     domains: "",
   });
@@ -29,6 +30,7 @@ const NewSearch = () => {
       setSearchData({
         keyword: e.target.value,
         numberOfPages: searchData.numberOfPages,
+        tabs: searchData.tabs,
         urls: searchData.urls,
         domains: searchData.domains,
       });
@@ -38,6 +40,17 @@ const NewSearch = () => {
       setSearchData({
         keyword: searchData.keyword,
         numberOfPages: e.target.value,
+        tabs: searchData.tabs,
+        urls: searchData.urls,
+        domains: searchData.domains,
+      });
+    }
+
+    if (type === "tabs") {
+      setSearchData({
+        keyword: searchData.keyword,
+        numberOfPages: searchData.numberOfPages,
+        tabs: e.target.value,
         urls: searchData.urls,
         domains: searchData.domains,
       });
@@ -47,6 +60,7 @@ const NewSearch = () => {
       setSearchData({
         keyword: searchData.keyword,
         numberOfPages: searchData.numberOfPages,
+        tabs: searchData.tabs,
         urls: e.target.value,
         domains: searchData.domains,
       });
@@ -56,6 +70,7 @@ const NewSearch = () => {
       setSearchData({
         keyword: searchData.keyword,
         numberOfPages: searchData.numberOfPages,
+        tabs: searchData.tabs,
         urls: searchData.urls,
         domains: e.target.value,
       });
@@ -66,6 +81,7 @@ const NewSearch = () => {
     const inputData = {
       keyword: searchData.keyword,
       numberOfPages: searchData.numberOfPages,
+      tab: searchData.tabs,
       urls: searchData.urls.replaceAll("\n", "").replaceAll(" ", "").split(","),
       domains: searchData.domains
         .replaceAll("\n", "")
@@ -172,6 +188,21 @@ const NewSearch = () => {
                 onChange={(e) => handleChanges(e, "pages")}
               />
             </div>
+
+            <div>
+              <label htmlFor="tabs">Google Tabs To Target</label>
+              <select
+                id="tabs"
+                className="select select-bordered w-full"
+                value={searchData.tabs}
+                onChange={(e) => handleChanges(e, "tabs")}
+              >
+                <option value="all">All Results Tab Only</option>
+                <option value="videos">Videos Tab Only</option>
+                <option value="both">Both Tabs</option>
+              </select>
+            </div>
+
             <div>
               <label htmlFor="url">
                 Specific URLs To Skip (seperate them with a comma)

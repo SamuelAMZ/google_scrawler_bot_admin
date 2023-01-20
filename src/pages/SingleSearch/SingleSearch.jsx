@@ -379,6 +379,7 @@ const SingleSearch = () => {
     data: downloadCsvData,
     isLoading: loadingCsv,
     isError: errorcsv,
+    isSuccess: lpm,
     refetch: sendcsv,
   } = useQuery([`${params.searchid}csv`], handleReqDownload, {
     refetchOnWindowFocus: false,
@@ -392,8 +393,6 @@ const SingleSearch = () => {
   };
 
   const createCsv = (csvToCreate) => {
-    console.log(csvToCreate);
-
     const headers = [
       csvToCreate.keyword && "KEYWORD",
       csvToCreate.urls && "URLS VISITED",
@@ -432,14 +431,14 @@ const SingleSearch = () => {
 
     // download
     setCsvReady(csvData);
+
+    // reset download btn
+    // setCsvReady(false);
   };
 
   // create csv file base on the response
   useEffect(() => {
-    if (downloadCsvData && downloadCsvData.code === "ok") {
-      // reset download btn
-      setCsvReady(false);
-
+    if (downloadCsvData && downloadCsvData.code === "ok" && lpm) {
       // will create and download csv
       createCsv(downloadCsvData.payload);
 
@@ -731,12 +730,18 @@ const SingleSearch = () => {
                   </button>
                 </div>
                 <div>
-                  <label
-                    htmlFor="choose-csv-rows"
-                    className="btn btn-primary w-full"
-                  >
-                    Download CSV
-                  </label>
+                  {pageData.payload.status === "done" ? (
+                    <label
+                      htmlFor="choose-csv-rows"
+                      className="btn btn-primary w-full"
+                    >
+                      Download CSV
+                    </label>
+                  ) : (
+                    <label className="btn btn-primary w-full " disabled>
+                      Download CSV
+                    </label>
+                  )}
                 </div>
 
                 {/* download csv choose rows modal */}
