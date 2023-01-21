@@ -278,7 +278,7 @@ const SingleSearch = () => {
     sendRemove();
   };
 
-  // give comfirmation once remove done pr error message
+  // give comfirmation once remove done or error message
   useEffect(() => {
     if (removeConfirmationData && removeConfirmationData.code === "ok") {
       notif("search removed");
@@ -470,19 +470,6 @@ const SingleSearch = () => {
       setCsvReady(csvData);
     }
   }, [csvData]);
-
-  // // create csv file base on the response
-  // useEffect(() => {
-  //   if (downloadCsvData && downloadCsvData.code === "ok") {
-  //     // will create and download csv
-  //     createCsv(downloadCsvData.payload);
-
-  //     notif("CSV downloaded succesfully");
-  //   }
-  //   if (downloadCsvData && downloadCsvData.code === "bad") {
-  //     notif("error, try later");
-  //   }
-  // }, [downloadCsvData]);
 
   return (
     <>
@@ -740,6 +727,11 @@ const SingleSearch = () => {
                 <div>
                   <h3>Search Status:</h3>
                   <p>{pageData.payload.status}</p>
+                </div>
+
+                <div>
+                  <h3>Target Tabs:</h3>
+                  <p>{pageData.payload.tab ? pageData.payload.tab : "all"}</p>
                 </div>
 
                 <div>

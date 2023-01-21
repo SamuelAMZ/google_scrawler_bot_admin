@@ -1,0 +1,45 @@
+//imports
+@import "../../styles/global/variables";
+
+.settings {
+  margin-bottom: 7rem;
+}
+
+.settings-domains {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+
+  .add-new {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 2rem;
+    background-color: $white;
+    border-radius: 10px;
+    padding: 2rem;
+    height: fit-content;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
+  .domains-list {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 2rem;
+    background-color: $white;
+    border-radius: 10px;
+    padding: 2rem;
+
+    h1 {
+      font-size: 20px;
+    }
+  }
+}
+
+.table-container {
+  margin-bottom: 0 !important;
+}

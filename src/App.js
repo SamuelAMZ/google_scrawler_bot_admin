@@ -26,6 +26,8 @@ import Logout from "./pages/Logout/Logout";
 // subpages
 import SingleSearch from "./pages/SingleSearch/SingleSearch";
 import CreateNewAccount from "./pages/Account/CreateNew/CreateNewAccount";
+import Domains from "./pages/Settings/Domains/Domains";
+import Links from "./pages/Settings/Links/Links";
 
 // contexts
 import { UserProvider } from "./contexts/UserContext";
@@ -62,7 +64,10 @@ const App = () => {
                   <Route path="/schedules" element={<Schedules />} />
                   <Route path="/emails" element={<Emails />} />
                   <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/settings" element={<Settings />}>
+                    <Route path="/settings/domains" element={<Domains />} />
+                    <Route path="/settings/links" element={<Links />} />
+                  </Route>
                   <Route path="/account" element={<Account />}>
                     <Route
                       path="/account/new-account"

@@ -25,7 +25,7 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 const Home = () => {
-  const tableConf = { perPage: "7" };
+  const tableConf = { perPage: "7", target: "searches" };
   const { login, changeLogin } = useContext(UserContext);
 
   // get analytics

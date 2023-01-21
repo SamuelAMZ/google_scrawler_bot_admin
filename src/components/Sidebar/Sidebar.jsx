@@ -90,10 +90,10 @@ const Sidebar = () => {
               {/* separator */}
               <span className="seperator-element"></span>
 
-              <Link to={"/settings"}>
+              <Link to={"/settings/domains"}>
                 <li
                   className={
-                    location.pathname === "/settings" ? "active-menu" : ""
+                    location.pathname.includes("/settings") ? "active-menu" : ""
                   }
                 >
                   <AiOutlineSetting />

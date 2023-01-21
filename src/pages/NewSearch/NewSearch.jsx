@@ -81,7 +81,7 @@ const NewSearch = () => {
     const inputData = {
       keyword: searchData.keyword,
       numberOfPages: searchData.numberOfPages,
-      tab: searchData.tabs,
+      tab: searchData.tabs ? searchData.tabs : "all",
       urls: searchData.urls.replaceAll("\n", "").replaceAll(" ", "").split(","),
       domains: searchData.domains
         .replaceAll("\n", "")
@@ -118,10 +118,10 @@ const NewSearch = () => {
     }
   }, [data]);
 
-  // //// grab detaails from url
+  // //// grab details from url
   useEffect(() => {
     const urlData = location.search.replace("?", "").split("&");
-    console.log(urlData);
+
     const dataFromUrl = {
       keyword: "",
       numberOfPages: "20",
@@ -173,6 +173,7 @@ const NewSearch = () => {
                 className="input input-bordered w-full"
                 value={searchData.keyword}
                 onChange={(e) => handleChanges(e, "keyword")}
+                required
               />
             </div>
             <div>
@@ -186,6 +187,7 @@ const NewSearch = () => {
                 className="input input-bordered w-full"
                 value={searchData.numberOfPages}
                 onChange={(e) => handleChanges(e, "pages")}
+                required
               />
             </div>
 
@@ -196,6 +198,7 @@ const NewSearch = () => {
                 className="select select-bordered w-full"
                 value={searchData.tabs}
                 onChange={(e) => handleChanges(e, "tabs")}
+                required
               >
                 <option value="all">All Results Tab Only</option>
                 <option value="videos">Videos Tab Only</option>
@@ -214,6 +217,7 @@ const NewSearch = () => {
                 https://wikipedia.com/the-walking-dead/"
                 value={searchData.urls}
                 onChange={(e) => handleChanges(e, "urls")}
+                required
               ></textarea>
             </div>
 
@@ -226,6 +230,7 @@ const NewSearch = () => {
                 wikipedia.com"
                 value={searchData.domains}
                 onChange={(e) => handleChanges(e, "domains")}
+                required
               ></textarea>
             </div>
 

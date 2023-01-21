@@ -2,25 +2,68 @@
 @import "../../styles/global/variables";
 
 .menu-tab-parent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  background-color: white;
+  padding: 0 1rem;
+  border-radius: 15px;
+
+  .tab-bordered {
+    height: 4rem;
+    font-size: 15px;
+    text-transform: capitalize;
+  }
+
+  .tab-active {
+    border-color: $accent;
+    color: $accent;
+  }
+}
+
+.account {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.account-details {
+  width: 100%;
   margin: 0 auto;
-  width: 30%;
+  margin-top: 2rem;
+  background-color: $white;
+  border-radius: 10px;
+  padding: 2rem;
+  height: fit-content;
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    li {
+      font-size: 15px;
+
+      span {
+        font-weight: 700;
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
 .your-account {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  width: 700px;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
   margin: 0 auto;
   margin-top: 2rem;
+  background-color: $white;
+  border-radius: 10px;
+  padding: 2rem 0;
 
   .change {
-    background-color: $white;
+    width: 500px;
     padding: 1.5rem;
-    border-radius: 10px;
     display: flex;
     flex-direction: column;
     gap: 1rem;

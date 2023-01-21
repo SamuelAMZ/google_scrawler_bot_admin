@@ -113,3 +113,21 @@ table {
     }
   }
 }
+
+// search bar on restricted pages
+.expand-search {
+  grid-template-columns: 1fr 1fr !important;
+
+  .actions {
+    padding-left: 1rem;
+
+    svg {
+      pointer-events: none;
+      font-size: 20px;
+    }
+  }
+}
+
+.small-remove {
+  text-transform: capitalize !important;
+}
