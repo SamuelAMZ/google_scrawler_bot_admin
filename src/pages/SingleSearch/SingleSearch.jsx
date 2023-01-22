@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 // componenets
 import Header from "../../components/Header/Header";
@@ -11,18 +11,22 @@ import postReq from "../../helpers/postReq";
 import { useQuery } from "react-query";
 
 // import loading
-import Skeleton from "react-loading-skeleton";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 // import notify
 import notif from "../../helpers/notif";
 
 // csv
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVDownload } from "react-csv";
+
+// icons
+import { AiOutlineYoutube, AiOutlineLink } from "react-icons/ai";
 
 const SingleSearch = () => {
   const params = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [pageData, setPageData] = useState(null);
   const [step2Loading, setStep2Loading] = useState(false);
   const [startStep3, setStartStep3] = useState(false);
@@ -51,7 +55,7 @@ const SingleSearch = () => {
     isLoading,
     isError,
     isSuccess,
-  } = useQuery(["single"], handlePageLoading, {
+  } = useQuery([`${location.pathname}single`], handlePageLoading, {
     refetchOnWindowFocus: false,
     enabled: true,
   });
@@ -72,25 +76,18 @@ const SingleSearch = () => {
   // loading screen for analitycs
   const LoadingAnalytics = () => {
     return (
-      <div className="loading">
-        <div>
-          <Skeleton count={2} />
+      <SkeletonTheme baseColor="#8b8b8b35" highlightColor="#f9fafb">
+        <div className="loading-loader">
+          <div>
+            <Skeleton height={500} />
+            <Skeleton height={500} />
+            <Skeleton height={500} />
+          </div>
+          <div>
+            <Skeleton height={450} />
+          </div>
         </div>
-        <span className="lorem"></span>
-        <div>
-          <Skeleton count={2} />
-        </div>
-        <span className="lorem"></span>
-        <div>
-          <Skeleton count={2} />
-        </div>
-        <span className="lorem"></span>
-        <Skeleton height={40} />
-        <span className="lorem"></span>
-        <Skeleton height={40} />
-        <span className="lorem"></span>
-        <Skeleton height={40} />
-      </div>
+      </SkeletonTheme>
     );
   };
 
@@ -508,11 +505,16 @@ const SingleSearch = () => {
           </li>
         </ul>
 
+        {isLoading && <LoadingAnalytics />}
         <div className="single-elements">
           {!isLoading && pageData && (
             <div className="step-content">
               {/* step1 */}
               <div className="step-elements">
+                {/* header */}
+                <div className="step-head"></div>
+                <p className="step-number">1</p>
+
                 <div className="elm">
                   <p>Step Name</p>
                   <p>Status</p>
@@ -532,14 +534,13 @@ const SingleSearch = () => {
                       );
                     })}
                   </div>
-                  {/* actions */}
-                  <div className="steps-actions">
-                    <button className="btn ">More details</button>
-                  </div>
                 </div>
               </div>
               {/* step2 */}
               <div className="step-elements">
+                {/* header */}
+                <div className="step-head"></div>
+                <p className="step-number">2</p>
                 <div className="elm">
                   <p>Step Name</p>
                   <p>Status</p>
@@ -569,15 +570,13 @@ const SingleSearch = () => {
                       })
                     )}
                   </div>
-
-                  {/* actions */}
-                  <div className="steps-actions">
-                    <button className="btn ">More details</button>
-                  </div>
                 </div>
               </div>
               {/* step 3 */}
               <div className="step-elements">
+                {/* header */}
+                <div className="step-head"></div>
+                <p className="step-number">3</p>
                 <div className="elm">
                   <p>Step Name</p>
                   <p>Status</p>
@@ -617,6 +616,18 @@ const SingleSearch = () => {
                                   {resElm.link.substr(0, 50)}
                                   {resElm.link.length > 50 ? "..." : ""}{" "}
                                 </p>
+
+                                <div className="actions">
+                                  {/* video icon */}
+                                  {resElm.videoData.isVideo && (
+                                    <AiOutlineYoutube className="video" />
+                                  )}
+
+                                  {/* link icon */}
+                                  <a href={resElm.link} target="_blank">
+                                    <AiOutlineLink />
+                                  </a>
+                                </div>
                               </div>
                               <div className="collapse-content">
                                 <div className="step3-data">
@@ -697,27 +708,26 @@ const SingleSearch = () => {
                             ? "btn btn-primary loading"
                             : "btn btn-primary"
                         }
-                        onClick={() => setStartStep3(true)}
+                        onClick={() => {
+                          setStartStep3(true);
+                          notif("loading scraper...");
+                        }}
                       >
-                        {(pageData &&
-                          pageData.payload.steps.step3 === "scraping...") ||
+                        {pageData?.payload.steps.step3 === "scraping..." ||
                         startStep3
                           ? "Scraping..."
                           : "Start Visiting"}
                       </button>
                     )}
-
-                    <button className="btn ">More details</button>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="analitycs-actions">
-            {/* details */}
-            {isLoading && <LoadingAnalytics />}
-            {!isLoading && pageData && (
+          {!isLoading && pageData && (
+            <div className="analitycs-actions">
+              {/* details */}
               <div className="details">
                 <div>
                   <h3>Search name:</h3>
@@ -886,8 +896,8 @@ const SingleSearch = () => {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
       ;

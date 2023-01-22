@@ -219,7 +219,7 @@ const Table = ({ conf }) => {
               </th>
               <th>Name</th>
               <th>Status</th>
-              <th>URLs Crawled</th>
+              <th>Google Tab Targeted</th>
               <th>Date</th>
               <th>Actions</th>
             </tr>
@@ -284,7 +284,13 @@ const Table = ({ conf }) => {
                     </Link>
                   </td>
                   <td>{elm.status}</td>
-                  <td>{elm.allResults.length}</td>
+                  <td>
+                    {elm.tab
+                      ? elm.tab === "both"
+                        ? `${elm.tab} tabs`
+                        : `${elm.tab} tab`
+                      : "all tab"}
+                  </td>
                   <td>{elm.createdAt.split("T")[0]}</td>
                   <td>
                     <div className="actions">

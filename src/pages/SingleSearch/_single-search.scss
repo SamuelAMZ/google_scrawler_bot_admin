@@ -48,6 +48,30 @@
     background-color: $white;
     padding: 2rem;
     border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+
+    .step-head {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: $accent;
+      color: white;
+      width: 120px;
+      height: 120px;
+
+      transform: rotate(45deg) translate(0%, -75%);
+    }
+
+    .step-number {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 20px;
+      line-height: 1;
+      z-index: 2;
+      color: white;
+    }
 
     .elm {
       display: flex;
@@ -139,10 +163,16 @@
   }
 }
 
-.loading {
-  .lorem {
-    display: block;
-    height: 1rem;
+.loading-loader {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 2rem;
+  width: 100%;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 }
 
@@ -155,6 +185,39 @@
 
   .collapse-title {
     padding: 0.5rem;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 3rem;
+
+    .actions {
+      display: flex;
+      flex-direction: row;
+      gap: 0.7rem;
+      align-items: center;
+
+      position: absolute;
+      right: 3rem;
+      z-index: 2000;
+
+      .video {
+        color: red;
+      }
+
+      a {
+        display: block;
+        margin: 0 !important;
+        border: none !important;
+        color: #385dff;
+        padding: 0 !important;
+      }
+    }
+
+    svg {
+      font-size: 25px;
+    }
   }
 
   .collapse-title,

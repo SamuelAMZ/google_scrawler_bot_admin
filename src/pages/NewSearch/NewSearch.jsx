@@ -25,6 +25,46 @@ const NewSearch = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // fetch default domains and url to skip
+  const fetchDefaultDOmainsAndUrlToSkip = async () => {
+    // sending request
+    try {
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+      headers.append("GET", "POST", "OPTIONS");
+      headers.append(
+        "Access-Control-Allow-Origin",
+        `${process.env.REACT_APP_DOMAIN}`
+      );
+      headers.append("Access-Control-Allow-Credentials", "true");
+
+      const response = await fetch(
+        `${process.env.REACT_APP_DOMAIN}/api/defaults`,
+        {
+          mode: "cors",
+          method: "POST",
+          headers: headers,
+          credentials: "include",
+        }
+      );
+
+      const serverMessage = await response.json();
+
+      if (serverMessage.code === "500") {
+        console.log(serverMessage.message);
+      }
+
+      // set data
+      if (serverMessage.code === "ok") {
+        return serverMessage.payload;
+      }
+    } catch (err) {
+      console.log(err);
+      return { domains: [], urls: [] };
+    }
+  };
+
   const handleChanges = (e, type) => {
     if (type === "keyword") {
       setSearchData({
@@ -78,15 +118,23 @@ const NewSearch = () => {
   };
 
   const handleSubmitions = async () => {
+    const defaults = await fetchDefaultDOmainsAndUrlToSkip();
+
     const inputData = {
       keyword: searchData.keyword,
       numberOfPages: searchData.numberOfPages,
       tab: searchData.tabs ? searchData.tabs : "all",
-      urls: searchData.urls.replaceAll("\n", "").replaceAll(" ", "").split(","),
-      domains: searchData.domains
-        .replaceAll("\n", "")
-        .replaceAll(" ", "")
-        .split(","),
+      urls: [
+        ...defaults.urls,
+        ...searchData.urls.replaceAll("\n", "").replaceAll(" ", "").split(","),
+      ],
+      domains: [
+        ...defaults.domains,
+        ...searchData.domains
+          .replaceAll("\n", "")
+          .replaceAll(" ", "")
+          .split(","),
+      ],
     };
 
     // send req
@@ -187,7 +235,6 @@ const NewSearch = () => {
                 className="input input-bordered w-full"
                 value={searchData.numberOfPages}
                 onChange={(e) => handleChanges(e, "pages")}
-                required
               />
             </div>
 
@@ -198,7 +245,6 @@ const NewSearch = () => {
                 className="select select-bordered w-full"
                 value={searchData.tabs}
                 onChange={(e) => handleChanges(e, "tabs")}
-                required
               >
                 <option value="all">All Results Tab Only</option>
                 <option value="videos">Videos Tab Only</option>
@@ -217,7 +263,6 @@ const NewSearch = () => {
                 https://wikipedia.com/the-walking-dead/"
                 value={searchData.urls}
                 onChange={(e) => handleChanges(e, "urls")}
-                required
               ></textarea>
             </div>
 
@@ -230,7 +275,6 @@ const NewSearch = () => {
                 wikipedia.com"
                 value={searchData.domains}
                 onChange={(e) => handleChanges(e, "domains")}
-                required
               ></textarea>
             </div>
 
