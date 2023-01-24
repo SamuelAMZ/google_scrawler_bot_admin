@@ -204,6 +204,10 @@ const SingleSearch = () => {
       // reset starter
       setStartStep3(false);
     }
+
+    return () => {
+      setStartStep3(false);
+    };
   }, [startStep3]);
 
   // //////// request to sed each 10sec to update progress of step 3
@@ -631,22 +635,6 @@ const SingleSearch = () => {
                               </div>
                               <div className="collapse-content">
                                 <div className="step3-data">
-                                  {/* keyword */}
-                                  <div className="step3-divs">
-                                    <h3>Keyword combination tested</h3>
-                                    {/* keywordCombinations */}
-                                    <ul>
-                                      {resElm.keywordCombinations.map(
-                                        (combs, combsIdx) => {
-                                          return (
-                                            <li key={combsIdx}>
-                                              <p>{combs}</p>
-                                            </li>
-                                          );
-                                        }
-                                      )}
-                                    </ul>
-                                  </div>
                                   {/* keyword found data */}
                                   <div className="step3-divs">
                                     <h3>Keyword search report</h3>
