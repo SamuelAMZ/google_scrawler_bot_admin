@@ -181,14 +181,6 @@ const Table = ({ conf }) => {
             )}
           </div>
         )}
-        {/* domains */}
-        {conf && conf.target !== "searches" && (
-          <div className="actions">
-            {tableData && tableData.code === "ok" && (
-              <p>{tableData.payload.totalItemsLength} Items</p>
-            )}
-          </div>
-        )}
         <div className="search">
           <form onSubmit={handleSearch}>
             <input
@@ -211,6 +203,7 @@ const Table = ({ conf }) => {
       {/* table */}
       <table className="table table-zebra w-full">
         {/* thead*/}
+        {/* search head */}
         {conf && conf.target === "searches" ? (
           <thead>
             <tr>
@@ -224,18 +217,33 @@ const Table = ({ conf }) => {
               <th>Actions</th>
             </tr>
           </thead>
-        ) : (
+        ) : null}
+
+        {/* domain and url head */}
+        {conf && (conf.target === "domains" || conf.target === "urls") ? (
           <thead>
             <tr>
               <th>Items</th>
               <th></th>
             </tr>
           </thead>
-        )}
+        ) : null}
+
+        {/* users head */}
+        {conf && conf.target === "users" ? (
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Identity Verification Status</th>
+              <th>Date registered</th>
+            </tr>
+          </thead>
+        ) : null}
 
         <tbody>
-          {/* loading */}
+          {/* loading for search */}
           {tableLoading &&
+            conf.target === "searches" &&
             new Array(Number(conf.perPage)).fill("").map((elm, idx) => {
               return (
                 <tr key={idx}>
@@ -249,6 +257,27 @@ const Table = ({ conf }) => {
                     <td>
                       <Skeleton count={1} />
                     </td>
+                    <td>
+                      <Skeleton count={1} />
+                    </td>
+                    <td>
+                      <Skeleton count={1} />
+                    </td>
+                    <td>
+                      <Skeleton count={1} />
+                    </td>
+                  </SkeletonTheme>
+                </tr>
+              );
+            })}
+
+          {/* loading for simple tables */}
+          {tableLoading &&
+            conf.target !== "searches" &&
+            new Array(Number(conf.perPage)).fill("").map((elm, idx) => {
+              return (
+                <tr key={idx}>
+                  <SkeletonTheme baseColor="#8b8b8b35" highlightColor="#f9fafb">
                     <td>
                       <Skeleton count={1} />
                     </td>
@@ -366,6 +395,38 @@ const Table = ({ conf }) => {
                         Remove
                       </button>
                     )}
+                  </td>
+                </tr>
+              );
+            })}
+
+          {/* users */}
+          {tableData &&
+            conf.target === "users" &&
+            tableData.code === "ok" &&
+            tableData.payload.list.map((elm, idx) => {
+              return (
+                <tr key={idx}>
+                  <td>
+                    <Link to={`/user/${elm._id}`}>
+                      {elm.username.substr(0, 50)}
+                      {elm.username.length >= 50 && "..."}
+                    </Link>
+                  </td>
+                  <td>
+                    {" "}
+                    <Link to={`/user/${elm._id}`}>
+                      {elm.legalStatus === "false" ? "not verified" : null}
+                      {elm.legalStatus === "true" ? "verified" : null}
+                      {elm.legalStatus === "verifying..."
+                        ? "Waiting Approval"
+                        : null}
+                    </Link>
+                  </td>
+                  <td>
+                    <Link to={`/user/${elm._id}`}>
+                      {elm.createdAt.split("T")[0]}
+                    </Link>
                   </td>
                 </tr>
               );

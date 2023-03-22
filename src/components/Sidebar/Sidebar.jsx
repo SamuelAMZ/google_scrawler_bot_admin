@@ -9,6 +9,7 @@ import { AiOutlineHome, AiOutlineSetting, AiOutlineUser } from "react-icons/ai";
 import { FiSearch, FiExternalLink } from "react-icons/fi";
 import { BiTask, BiEnvelope } from "react-icons/bi";
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
+import { FiUsers } from "react-icons/fi";
 
 const Sidebar = () => {
   // loaction
@@ -84,6 +85,16 @@ const Sidebar = () => {
                 >
                   <TbBrandGoogleAnalytics />
                   <p>Analytics</p>
+                </li>
+              </Link>
+              <Link to={"/users"}>
+                <li
+                  className={
+                    location.pathname.includes("user") ? "active-menu" : ""
+                  }
+                >
+                  <FiUsers />
+                  <p>Users</p>
                 </li>
               </Link>
 

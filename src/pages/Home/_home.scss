@@ -38,3 +38,21 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 1rem;
 }
+
+.user-blocks {
+  grid-template-columns: 1fr 1fr !important;
+
+  .stat-jd {
+    grid-template-columns: 1fr 5fr;
+    cursor: pointer;
+    div {
+      font-size: 16px;
+      color: $dash;
+
+      .desc {
+        font-size: 14px;
+        color: $second;
+      }
+    }
+  }
+}
